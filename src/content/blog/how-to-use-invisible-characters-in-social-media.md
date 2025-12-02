@@ -4,6 +4,7 @@ description: "Learn how to enhance your social media presence with invisible Uni
 pubDate: 2025-03-25
 author: "John Doe"
 image: "/images/inisible-character-on-social-apps.png?height=600&width=1200"
+image: "/images/blank-spaces-in-social-media.png?height=600&width=1200"
 tags: ["social media"]
 featured: false
 ---
