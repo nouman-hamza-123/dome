@@ -1,0 +1,51 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Intro from '../../components/Intro.astro';
+import WhtIsInvisibleTxt from '../../components/WhtIsInvisibleTxt.astro';
+import WhySection from '../../components/WhyUse.astro';
+import PracticalUseCasesSection from '../../components/PracticalUseCasesSection.astro';
+import InvisibleTextGenerator from '../../components/InvisibleTextGenerator.astro';
+import TypesOfInvisibleText from '../../components/Types.astro';
+import FAQSection from '../../components/FAQ.astro';
+import UnicodeTable from '../../components/UnicodeTable.astro';
+import BlogSection from '../../components/BlogSection.astro';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'es' } },
+    { params: { lang: 'fr' } },
+    { params: { lang: 'de' } },
+    { params: { lang: 'my' } },
+    { params: { lang: 'it' } },
+    { params: { lang: 'id' } },
+    { params: { lang: 'ru' } },
+    { params: { lang: 'tr' } },
+    { params: { lang: 'ko' } },
+    { params: { lang: 'pt' } },
+    { params: { lang: 'nl' } },
+    { params: { lang: 'ja' } },
+    { params: { lang: 'th' } },
+    { params: { lang: 'vi' } },
+    { params: { lang: 'hu' } },
+    { params: { lang: 'fi' } },
+    // Add more languages as needed
+  ];
+}
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+export const prerender = true;
+---
+<Layout title={t('meta.title')} description={t('meta.description')}>
+  <div class="flex-1">
+    <InvisibleTextGenerator />
+    <Intro />
+    <WhtIsInvisibleTxt />
+    <TypesOfInvisibleText />
+    <UnicodeTable />
+    <WhySection />
+    <PracticalUseCasesSection />
+    <BlogSection />
+    <FAQSection />
+  </div>
+</Layout>

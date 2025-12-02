@@ -1,16 +1,25 @@
 ---
 import Header from '../components/Header.astro';
+import "../styles/custom.css";
 import Footer from '../components/Footer.astro';
+import OGImage from '../components/OGImage.astro';
 import "../styles/global.css";
 
 interface Props {
 	title: string;
 	description: string;
 	image?: string;
+	type?: 'website' | 'article' | 'blog';
 }
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = '/images/og-image.webp' } = Astro.props;
+const { title, description, image, type = 'article' } = Astro.props;
+
+// Generate dynamic OG image URL for tools using the URL slug
+const baseUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://www.invisibletext.me';
+const slug = Astro.url.pathname.split('/').pop() || '';
+const ogImageUrl = new URL(`/og/tools/${slug}`, baseUrl);
+const finalImageUrl = image ? new URL(image, baseUrl).toString() : ogImageUrl.toString();
 
 
 ---
@@ -22,13 +31,8 @@ const { title, description, image = '/images/og-image.webp' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="generator" content={Astro.generator} />
-
-    <!-- Font preloads -->
     <link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin />
-
-    <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Primary Meta Tags -->
@@ -36,24 +40,23 @@ const { title, description, image = '/images/og-image.webp' } = Astro.props;
     <meta name="title" content={title} />
     <meta name="description" content={description} />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url} />
+    <!-- Open Graph / Facebook / Twitter Meta Tags -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(image, Astro.url)} />
-    <meta name="robots" content="index, follow">
-
-
-    <!-- Twitter -->
+    <meta property="og:image" content={finalImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Invisible Text" />
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL(image, Astro.url)} />
-    
-    <link href="/styles/global.css" rel="stylesheet" />
+    <meta property="twitter:image" content={finalImageUrl} />
+    <meta name="robots" content="index, follow" /> 
     <meta name="theme-color" content="#0F1A36" />
+    <style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1370487049277752"
      crossorigin="anonymous"></script>
     <script type="text/partytown">
@@ -118,29 +121,48 @@ const { title, description, image = '/images/og-image.webp' } = Astro.props;
     
     @media (max-width: 768px) {
       .static-page-container {
-        padding: 2rem 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem;
       }
       
       .static-page-content {
-        padding: 1.5rem;
+        background-color: var(--navy-800);
+        border: 1px solid var(--navy-700);
+        border-radius: 0.75rem;
+        padding: 2rem;
       }
       
       .static-page-title {
-        font-size: 1.75rem;
-        margin-bottom: 1.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--yellow-400);
+        margin-bottom: 2rem;
+        text-align: center;
       }
+      
+      @media (max-width: 768px) {
+        .static-page-container {
+          padding: 2rem 1rem;
+        }
+        
+        .static-page-content {
+          padding: 1.5rem;
+        }
+        
+        .static-page-title {
+          font-size: 1.75rem;
+          margin-bottom: 1.5rem;
+        }
+      }
+    </style>
     }
   </style>
 </head>
 <body>
   <Header />
   <main>
-    <div class="static-page-container">
-      <div class="static-page-content">
-        <h1 class="static-page-title">{title}</h1>
-        <slot />
-      </div>
-    </div>
+    <slot />
   </main>
   <Footer />
 </body>

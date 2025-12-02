@@ -1,117 +1,211 @@
 ---
-import { languages } from '../i18n/ui';
+import { languages, defaultLang } from '../i18n/ui';
 import { getLangFromUrl } from '../i18n/utils';
 
 const currentLang = getLangFromUrl(Astro.url);
-const currentPath = Astro.url.pathname.replace(`/${currentLang}`, '');
+const currentPath = Astro.url.pathname;
+
+// Remove the language prefix from the current path to get the base path
+const getBasePath = (path: string, lang: string) => {
+  if (lang === defaultLang) {
+    return path === `/${lang}` ? '/' : path.replace(`/${lang}/`, '/').replace(`/${lang}`, '/');
+  }
+  return path.replace(`/${lang}/`, '/').replace(`/${lang}`, '/');
+};
+
+const basePath = getBasePath(currentPath, currentLang);
+
+// Generate URLs for each language
+const generateLanguageUrl = (langCode: string) => {
+  if (langCode === defaultLang) {
+    return basePath === '/' ? '/' : basePath;
+  }
+  return basePath === '/' ? `/${langCode}` : `/${langCode}`;
+};
+
+// Get language code (uppercase)
+const getLangCode = (code: string) => code.toUpperCase();
 ---
 
-<div class="language-switcher">
-  <button type="button" id="language-menu-button" class="language-button">
-    <span class="language-flag">{languages[currentLang].flag}</span>
-    <span class="language-name">{languages[currentLang].name}</span>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m6 9 6 6 6-6"></path>
+<div class="relative inline-block group">
+  <button 
+    class="hidden md:flex items-center gap-2 px-3 py-2 bg-white border border-white/20 rounded-lg cursor-pointer text-sm font-medium text-black transition-all duration-200 hover:bg-yellow-100 hover:border-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-navy-900" 
+    aria-label="Change language" 
+    aria-haspopup="true" 
+    aria-expanded="false"
+    data-language-button
+  >
+    <span class="flex items-center gap-1.5">
+      {languages[currentLang].flag && <span class="text-base leading-none">{languages[currentLang].flag}</span>}
+      <span class="whitespace-nowrap">{languages[currentLang].name}</span>
+    </span>
+    <svg 
+      class="w-3 h-3 transition-transform duration-200 text-black group-hover:rotate-180" 
+      width="12" 
+      height="12" 
+      viewBox="0 0 12 12" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
 
-  <div id="language-menu" class="language-menu hidden">
-    {Object.entries(languages).map(([lang, { name, flag }]) => (
-      <a
-        href={`/${lang}`}
-        class={`language-option ${currentLang === lang ? 'active' : ''}`}
-      >
-        <span class="language-flag">{flag}</span>
-        <span>{name}</span>
-      </a>
-    ))}
+  <button 
+    class="md:hidden flex items-center gap-1 px-1 py-1 bg-white border border-white/20 rounded-md cursor-pointer text-sm font-medium text-black transition-all duration-200 hover:bg-yellow-100 hover:border-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-navy-900" 
+    aria-label="Change language" 
+    aria-haspopup="true" 
+    aria-expanded="false"
+    data-language-button
+  >
+    <span class="flex items-center gap-1">
+      {languages[currentLang].flag && <span class="text-base leading-none">{languages[currentLang].flag}</span>}
+      <span class="whitespace-nowrap font-semibold">{getLangCode(currentLang)}</span>
+    </span>
+    <svg 
+      class="w-3 h-3 transition-transform duration-200 text-black group-hover:rotate-180" 
+      width="12" 
+      height="12" 
+      viewBox="0 0 12 12" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  
+  <div class="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible -translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 z-50 min-w-[200px]">
+    <div class="py-2 max-h-[300px] overflow-y-auto">
+      {Object.entries(languages).map(([code, lang]) => (
+        <a 
+          href={generateLanguageUrl(code)}
+          class={`flex items-center gap-3 px-3 py-2 text-sm text-gray-700 transition-colors duration-200 hover:bg-navy-600 relative ${code === currentLang ? 'bg-blue-50 text-blue-700' : ''}`}
+          hreflang={code}
+          aria-current={code === currentLang ? 'page' : undefined}
+          aria-label="language"
+        >
+          {lang.flag && <span class="text-base leading-none">{lang.flag}</span>}
+          <span class="flex-1">{lang.name}</span>
+          {code === currentLang && <span class="text-green-600 font-semibold ml-auto">✓</span>}
+        </a>
+      ))}
+    </div>
   </div>
 </div>
 
-
-
-<style>
-.language-switcher {
-  position: relative;
-}
-
-.language-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--white);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-  padding: 0.5rem;
-}
-
-.language-button:hover {
-  color: var(--yellow-400);
-}
-
-.language-flag {
-  font-size: 1.25rem;
-}
-
-.language-name {
-  display: none;
-}
-
-.language-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10;
-  width: 10rem;
-  background-color: var(--navy-800);
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  margin-top: 0.5rem;
-  overflow: hidden;
-}
-
-.language-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.language-option:hover {
-  background-color: var(--navy-700);
-}
-
-.language-option.active {
-  color: var(--yellow-400);
-}
-
-@media (min-width: 640px) {
-  .language-name {
-    display: inline;
-  }
-}
-
-
-</style>
-
-
-
 <script>
-  const button = document.getElementById('language-menu-button');
-  const menu = document.getElementById('language-menu');
-
-  if (button && menu) {
-    button.addEventListener('click', () => {
-      menu.classList.toggle('hidden');
-    });
+  // Enhanced keyboard navigation and accessibility
+  document.addEventListener('DOMContentLoaded', () => {
+    const languageSwitchers = document.querySelectorAll('[data-language-button]');
     
-    document.addEventListener('click', (event) => {
-      if (!button.contains(event.target) && !menu.contains(event.target)) {
-        menu.classList.add('hidden');
+    languageSwitchers.forEach(button => {
+      const switcher = button.closest('.group');
+      const dropdown = switcher?.querySelector('div[class*="absolute"]');
+      const options = switcher?.querySelectorAll('a');
+      
+      let isOpen = false;
+      let focusedIndex = -1;
+      
+      // Toggle dropdown with click
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDropdown();
+      });
+      
+      // Handle keyboard navigation
+      button.addEventListener('keydown', (e) => {
+        switch ((e as KeyboardEvent).key) {
+          case 'Enter':
+          case ' ':
+          case 'ArrowDown':
+            e.preventDefault();
+            if (!isOpen) {
+              openDropdown();
+            }
+            focusFirstOption();
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (!isOpen) {
+              openDropdown();
+            }
+            focusLastOption();
+            break;
+          case 'Escape':
+            closeDropdown();
+            break;
+        }
+      });
+      
+      // Handle option navigation
+      options?.forEach((option, index) => {
+        option.addEventListener('keydown', (e: KeyboardEvent) => {
+          switch (e.key) {
+            case 'ArrowDown':
+              e.preventDefault();
+              focusedIndex = (index + 1) % options.length;
+              options[focusedIndex].focus();
+              break;
+            case 'ArrowUp':
+              e.preventDefault();
+              focusedIndex = index === 0 ? options.length - 1 : index - 1;
+              options[focusedIndex].focus();
+              break;
+            case 'Escape':
+              closeDropdown();
+              (button as HTMLElement).focus();
+              break;
+            case 'Tab':
+              if (e.shiftKey && index === 0) {
+                closeDropdown();
+              } else if (!e.shiftKey && index === options.length - 1) {
+                closeDropdown();
+              }
+              break;
+          }
+        });
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!switcher?.contains(e.target as Node)) {
+          closeDropdown();
+        }
+      });
+      
+      function toggleDropdown() {
+        isOpen ? closeDropdown() : openDropdown();
+      }
+      
+      function openDropdown() {
+        isOpen = true;
+        button.setAttribute('aria-expanded', 'true');
+        dropdown?.classList.remove('opacity-0', 'invisible', '-translate-y-2');
+        dropdown?.classList.add('opacity-100', 'visible', 'translate-y-0');
+      }
+      
+      function closeDropdown() {
+        isOpen = false;
+        button.setAttribute('aria-expanded', 'false');
+        dropdown?.classList.add('opacity-0', 'invisible', '-translate-y-2');
+        dropdown?.classList.remove('opacity-100', 'visible', 'translate-y-0');
+        focusedIndex = -1;
+      }
+      
+      function focusFirstOption() {
+        if (options && options.length > 0) {
+          focusedIndex = 0;
+          options[0].focus();
+        }
+      }
+      
+      function focusLastOption() {
+        if (options && options.length > 0) {
+          focusedIndex = options.length - 1;
+          options[focusedIndex].focus();
+        }
       }
     });
-  }
+  });
 </script>

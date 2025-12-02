@@ -13,12 +13,23 @@ import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import LazyAdSlot from '../components/ads/LazyAdsSlot';
 import { CA_PUB_ID, DIS_AD_SLOT_WIDEBANNER, DISPLAY_AD_FORMAT, MULTIPLEX_AD_SLOT } from '../const';
 
-
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 ---
 
 <Layout title={t('meta.title')} description={t('meta.description')}>
+  <div class="flex-1">
+    <InvisibleTextGenerator />
+    <Intro />
+    <WhtIsInvisibleTxt />
+    <TypesOfInvisibleText />
+    <UnicodeTable />
+    <WhySection />
+    <PracticalUseCasesSection />
+    <BlogSection />
+    <FAQSection />
+  </div>
+</Layout>
   <InvisibleTextGenerator />
   <LazyAdSlot 
     client:visible

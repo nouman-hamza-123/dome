@@ -1,9 +1,71 @@
 ---
+import Layout from '../../layouts/StaticPageLayout.astro';
 import LazyAdSlot from '../../components/ads/LazyAdsSlot';
 import { ARTICLE_AD_SLOT, CA_PUB_ID, DISPLAY_AD_FORMAT, DISPLAY_AD_SLOT } from '../../const';
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import FormattedDate from '../../components/FormattedDate.astro';
+import { Image } from 'astro:assets';
 
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<Layout title="Blog & Insightful Resources - InvisibleText.me" description='Explore our articles about invisible characters, Unicode, and creative text formatting'>
+  <div class="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 xl:px-16">
+    <section class="py-8 md:py-16 lg:py-20">
+      <!-- Enhanced Header with Gradient -->
+      <div class="text-center mb-12 md:mb-20 px-2 md:px-4 mt-8">
+        <div class="inline-block mb-4">
+          <span class="px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 text-navy-900 rounded-full text-sm font-semibold tracking-wide">
+            LATEST ARTICLES
+          </span>
+        </div>
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-yellow-100 bg-clip-text bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 leading-tight">
+          Blog
+        </h1>
+        <p class="text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light">
+          Explore our articles about invisible characters, Unicode, and creative text formatting
+        </p>
+      </div>
+      
+      <!-- Enhanced Blog Grid -->
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10 lg:gap-12 list-none m-0 p-0 px-6">
+        {
+          posts.map((post, index) => (
+            <li class={`w-full group ${index === 0 ? 'md:col-span-2' : ''}`}>
+              <a 
+                href={`/blog/${post.slug}`} 
+                class={`block no-underline text-white border border-white/5 rounded-3xl overflow-hidden flex transition-all duration-500 ease-out shadow-sm shadow-navy-700 hover:shadow-2xl hover:shadow-yellow-100 hover:-translate-y-2 hover:border-yellow-200/50 ${index === 0 ? 'flex-col md:flex-row' : 'flex-col'}`}
+              >
+                {post.data.image && (
+                  <div class={`overflow-hidden relative ${index === 0 ? 'md:w-1/2' : 'w-full'}`}>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+                    <Image 
+                      width={720} 
+                      height={360} 
+                      src={post.data.image} 
+                      alt={post.data.title}
+                      class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                  </div>
+                )}
+                <div class={`p-6 md:p-8 lg:p-10 flex flex-col justify-center ${index === 0 ? 'md:w-1/2' : 'w-full'}`}>
+                  {/* Category Badge (if you add categories later) */}
+                  <div class="mb-4">
+                    <span class="inline-block px-3 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-xs font-semibold uppercase tracking-wider">
+                      Article
+                    </span>
+                  </div>
+                  
+                  <h4 class={`m-0 mb-4 text-white leading-tight font-bold group-hover:text-yellow-100 transition-colors duration-300 ${index === 0 ? 'text-3xl md:text-4xl lg:text-5xl' : 'text-xl md:text-2xl'}`}>
+                    {post.data.title}
+                  </h4>
+                  
+                  <div class="flex items-center gap-3 mb-4 text-sm text-yellow-100/75">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
 const allPosts = await getCollection('blog');
 const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
@@ -64,15 +126,41 @@ const allTags = Array.from(new Set(sortedPosts.flatMap(post => post.data.tags ||
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="m9 18 6-6-6-6"></path>
                     </svg>
-                  </a>
-                  {post.data.tags && post.data.tags.length > 0 && (
-                    <div class="blog-post-tags">
-                      {post.data.tags.slice(0, 2).map(tag => (
-                        <a href={`/blog/tag/${tag}`} class="blog-post-tag">#{tag}</a>
-                      ))}
-                    </div>
+                    <FormattedDate date={post.data.pubDate} />
+                  </div>
+                  
+                  {post.data.description && (
+                    <p class={`m-0 text-gray-300 leading-relaxed ${index === 0 ? 'text-base md:text-lg' : 'text-base'}`}>
+                      {post.data.description}
+                    </p>
                   )}
+                  
+                  {/* Read More Arrow */}
+                  <div class="mt-6 flex items-center gap-2 text-yellow-300 font-semibold group-hover:gap-4 transition-all duration-300">
+                    <span>Read Article</span>
+                    <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                  </div>
                 </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      
+      <!-- Optional: CTA Section at bottom -->
+      <div class="mt-20 text-center px-6">
+        <div class="max-w-2xl mx-auto p-8 md:p-12 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl border border-yellow-100">
+          <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+            Stay Updated
+          </h3>
+          <p class="text-gray-600 text-lg mb-6">
+            Get notified when we publish new articles about Unicode and text formatting
+          </p>
+          <button class="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-yellow-200 hover:-translate-y-0.5">
+            Subscribe to Newsletter
+          </button>
               </div>
             </article>
           ))}
@@ -85,8 +173,9 @@ const allTags = Array.from(new Set(sortedPosts.flatMap(post => post.data.tags ||
           />
         </div>
       </div>
-    </div>
+    </section>
   </div>
+</Layout>
   
 </Layout>
 
